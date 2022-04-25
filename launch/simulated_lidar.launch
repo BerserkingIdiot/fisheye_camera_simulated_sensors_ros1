@@ -3,7 +3,7 @@
 
     <arg name="debug" default="false"/>
 
-    <node name="simulated_lidar" type="simulated_lidar" pkg="200-degree-camera-simulated-sensors-ros1" output="screen">
+    <node name="simulated_lidar" type="simulated_lidar" pkg="fisheye_camera_simulated_sensors_ros1" output="screen">
         <param name="debug" value="$(arg debug)"/>
     </node>
 

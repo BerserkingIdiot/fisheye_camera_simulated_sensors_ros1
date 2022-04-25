@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>200-degree-camera-simulated-sensors-ros1</name>
+  <name>fisheye_camera_simulated_sensors_ros1</name>
   <version>0.0.0</version>
-  <description>The 200-degree-camera-simulated-sensors-ros1 package</description>
+  <description>The fisheye_camera_simulated_sensors_ros1 package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->

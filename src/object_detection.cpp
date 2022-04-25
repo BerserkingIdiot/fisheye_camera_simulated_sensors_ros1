@@ -432,6 +432,8 @@ int main(int argc, char** argv)
     n_public.getParam("debug", debug_mode);
     n_public.getParam("sensor_img_path", sensor_img_path);
 
+    ros::Publisher object_detection_pub = n_public.advertise<fisheye_camera_simulated_sensors_ros1::ObjectDetection>("/object_detection", 1);
+
     /*
     // Create a VideoCapture object and open the input file
     // If the input is the web camera, pass 0 instead of the video file name
@@ -483,8 +485,16 @@ int main(int argc, char** argv)
         //Rotate frame 90º
         cv::rotate(resized_frame, resized_frame, cv::ROTATE_90_CLOCKWISE);
         //get sensor values
-        std::vector<uint8_t> sensor_valores = frameProcessing(frame);
-        resized_frame=process_frame(resized_frame, sensor_valores);
+        std::vector<uint8_t> sensor_values = frameProcessing(frame);
+        resized_frame=process_frame(resized_frame, sensor_values);
+
+        fisheye_camera_simulated_sensors_ros1::ObjectDetection obj_det_msg;
+        obj_det_msg.left = sensor_values[3];
+        obj_det_msg.right = sensor_values[0];
+        obj_det_msg.back = sensor_values[2];
+        obj_det_msg.front = sensor_values[1];
+
+        object_detection_pub.publish(obj_det_msg);
 
         if(debug_mode){
             cv::imshow("Original Frame", frame);

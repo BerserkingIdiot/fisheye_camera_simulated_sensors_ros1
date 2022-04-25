@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(200-degree-camera-simulated-sensors-ros1)
+project(fisheye_camera_simulated_sensors_ros1)
 
 set(OpenCV_DIR /usr/share/OpenCV)
 
@@ -64,7 +64,10 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-
+add_message_files(
+  FILES
+  ObjectDetection.msg
+)
 
 ## Generate services in the 'srv' folder
 
@@ -176,7 +179,7 @@ target_link_libraries(object_detection
 )
 
 add_dependencies(simulated_lidar ${catkin_EXPORTED_TARGETS})
-add_dependencies(object_detection ${catkin_EXPORTED_TARGETS})
+add_dependencies(object_detection ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 
 #############
