@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<launch>
+
+    <arg name="debug" default="false"/>
+
+    <node name="object_detection" type="object_detection" pkg="200-degree-camera-simulated-sensors-ros1" output="screen">
+        <param name="debug" value="$(arg debug)"/>
+        <param name="sensor_img_path" value="$(find 200-degree-camera-simulated-sensors-ros1)/include/images/"/>
+    </node>
+
+</launch>

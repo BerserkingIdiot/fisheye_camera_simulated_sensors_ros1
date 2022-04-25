@@ -150,6 +150,7 @@ add_definitions(${GTK_CFLAGS_OTHER})
 ## The recommended prefix ensures that target names across packages don't collide
 #add_executable(rpi_camera_node src/rpi_camera.cpp src/video_tests.cpp)
 add_executable(simulated_lidar src/simulated_lidar.cpp)
+add_executable(object_detection src/object_detection.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -168,7 +169,15 @@ target_link_libraries(simulated_lidar
   ${raspicam_CV_LIBS}
 )
 
+target_link_libraries(object_detection
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBRARIES}
+  ${raspicam_CV_LIBS}
+)
+
 add_dependencies(simulated_lidar ${catkin_EXPORTED_TARGETS})
+add_dependencies(object_detection ${catkin_EXPORTED_TARGETS})
+
 
 #############
 ## Install ##
