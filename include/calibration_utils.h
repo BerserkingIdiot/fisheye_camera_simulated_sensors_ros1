@@ -1,5 +1,5 @@
-#ifndef SRC_SIMULATED_LIDAR_H
-#define SRC_SIMULATED_LIDAR_H
+#ifndef SRC_CALIBRATION_UTILS_H
+#define SRC_CALIBRATION_UTILS_H
 
 #include <ros/ros.h>
 #include <opencv2/opencv.hpp>
