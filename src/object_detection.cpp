@@ -258,20 +258,18 @@ void detectObj(cv::Mat img, int lowThreshold, int threshMult, int kernel_size, s
 
 
     //debug only. desenha contornos e circulos nos objetos detetados
-     /*for (size_t j = 0; j < contours.size(); j++)
+     for (size_t j = 0; j < contours.size(); j++)
      {
-         Scalar color = Scalar(rng.uniform(0, 256), rng.uniform(0, 256), rng.uniform(0, 256));
+         cv::Scalar color = cv::Scalar(0, 0, 255);
 
          if ((int)radius[j] > minRadiusFilter) {
              rectangle(img, boundRect[j].tl(), boundRect[j].br(), color, 2);
              circle(img, centers[j], (int)radius[j], color, 2);
          }
-     }*/
+     }
 
     sortDetectedObjects(pos, img, centers, radius, boundRect);
 
-    /*cv::imshow("Image ", img);
-    cv::waitKey(0);*/
 }
 
 
@@ -430,7 +428,12 @@ int main(int argc, char** argv)
 
     bool debug_mode = false;
     n_public.getParam("debug", debug_mode);
+    bool record_mode = false;
+    n_public.getParam("record", record_mode);
     n_public.getParam("sensor_img_path", sensor_img_path);
+    std::string recording_path;
+    n_public.getParam("recording_path", recording_path);
+
 
     ros::Publisher object_detection_pub = n_public.advertise<fisheye_camera_simulated_sensors_ros1::ObjectDetection>("/object_detection", 1);
 
@@ -452,6 +455,9 @@ int main(int argc, char** argv)
     Camera.set(CV_CAP_PROP_FOURCC, CV_FOURCC('M', 'J', 'P', 'G'));
     Camera.set(CV_CAP_PROP_FRAME_WIDTH, 1600);
     Camera.set(CV_CAP_PROP_FRAME_HEIGHT, 1200);
+    //shutter speed, 1-100 for 0-33ms
+    //Camera.set(CV_CAP_PROP_FRAME_HEIGHT, 1200);
+
 
     std::cout << "Opening Camera..." << std::endl;
     if (!Camera.open())
@@ -459,6 +465,9 @@ int main(int argc, char** argv)
         std::cerr << "Error opening the camera" << std::endl;
         return -1;
     }
+
+    cv::VideoWriter video(recording_path, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 10, cv::Size(462, 500));
+    
     ros::Duration(1.0).sleep();
 
     while(ros::ok())
@@ -496,9 +505,16 @@ int main(int argc, char** argv)
 
         object_detection_pub.publish(obj_det_msg);
 
+        if(record_mode){
+            //cv2.cvtColor(resized_frame,cv2.COLOR_RGB2BGR);
+            video.write(resized_frame);
+        }
+
         if(debug_mode){
             cv::imshow("Original Frame", frame);
             cv::waitKey(1);
+
+            std::cout << "Resized frame size is: " << resized_frame.size() << "\n";
 
             cv::imshow("Frame with Detection", resized_frame);
             cv::waitKey(0);
@@ -509,9 +525,12 @@ int main(int argc, char** argv)
 
     // When everything done, release the video capture object
     Camera.release();
+    video.release();
 
     // Closes all the frames
     cv::destroyAllWindows();
+
+    std::cout << "uwu\n";
 
     return 0;
 
