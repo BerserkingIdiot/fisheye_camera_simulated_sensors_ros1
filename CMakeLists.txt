@@ -154,6 +154,7 @@ add_definitions(${GTK_CFLAGS_OTHER})
 #add_executable(rpi_camera_node src/rpi_camera.cpp src/video_tests.cpp)
 add_executable(simulated_lidar src/simulated_lidar.cpp)
 add_executable(object_detection src/object_detection.cpp)
+add_executable(camera_calibration src/calibration_utils.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -178,8 +179,15 @@ target_link_libraries(object_detection
   ${raspicam_CV_LIBS}
 )
 
+target_link_libraries(camera_calibration
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBRARIES}
+  ${raspicam_CV_LIBS}
+)
+
 add_dependencies(simulated_lidar ${catkin_EXPORTED_TARGETS})
 add_dependencies(object_detection ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(camera_calibration ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 
 #############
