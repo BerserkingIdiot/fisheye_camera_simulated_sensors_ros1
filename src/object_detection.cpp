@@ -425,6 +425,7 @@ int main(int argc, char** argv)
 {
     ros::init(argc, argv, "object_detection_node");
     ros::NodeHandle n_public("~");
+    ros::Rate rate(20); //rate set to 20Hz
 
     bool debug_mode = false;
     n_public.getParam("debug", debug_mode);
@@ -520,7 +521,8 @@ int main(int argc, char** argv)
             cv::waitKey(0);
         }
 
-        ros::spinOnce();
+        //ros::spinOnce();
+        rate.sleep();
     }
 
     // When everything done, release the video capture object

@@ -65,8 +65,9 @@ double convert_SE(double distance){
 	
 int main(int argc, char** argv)
 {
-    ros::init(argc, argv, "peoximity_sensor_node");
+    ros::init(argc, argv, "proximity_sensor_node");
     ros::NodeHandle n_public("~");
+    ros::Rate rate(20); //rate set at 20 Hz
 
     bool debug_mode = false;
     n_public.getParam("debug", debug_mode);
@@ -196,7 +197,8 @@ int main(int argc, char** argv)
             cv::waitKey(0);
         }
 
-        ros::spinOnce();
+        //ros::spinOnce();
+        rate.sleep();
     }
 
     // When everything done, release the video capture object

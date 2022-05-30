@@ -2,3 +2,4 @@ src/video_tests.cpp
 include/video_tests.h
 include/imgset/
 include/calib_imgs/
+output/
