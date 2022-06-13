@@ -73,6 +73,15 @@ int main(int argc, char** argv)
     n_public.getParam("debug", debug_mode);
     //std::cout << "Debug mode is set to " << debug_mode << "\n";
 
+    bool publish_raw_image = false;
+    n_public.getParam("publish_raw_image", publish_raw_image);
+    //std::cout << "Image publishing is set to " << publish_raw_image << "\n";
+
+    ros::Publisher laser_scan_pub = n_public.advertise<sensor_msgs::LaserScan>("/static_laser", 1);
+
+    image_transport::ImageTransport it(n_public);
+    image_transport::Publisher pub_img = it.advertise("camera", 1);
+
     // Create a VideoCapture object and open the input file
     // If the input is the web camera, pass 0 instead of the video file name
     cv::VideoCapture cap(0);
@@ -92,6 +101,16 @@ int main(int argc, char** argv)
 
         // If the frame is empty, break immediately
         if (frame.empty()) break;
+
+        if(publish_raw_image){
+            sensor_msgs::Image img_msg;
+            std_msgs::Header header;
+            header.stamp = ros::Time::now();
+            cv_bridge::CvImage img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::BGR8, frame);
+            img_bridge.toImageMsg(img_msg);
+
+            pub_img.publish(img_msg);
+        }
 
         // Display the resulting frame
         if(debug_mode){
@@ -180,8 +199,59 @@ int main(int argc, char** argv)
         }
         
         /*
-        TODO: publish data
+        currently using the front lasers only (NW, NNW, N, NNE, NE)
         */
+        sensor_msgs::LaserScan scan_msg;
+        ros::Time scan_time = ros::Time::now();
+
+        scan_msg.header.stamp = scan_time;
+        scan_msg.header.frame_id = "laser_frame";
+        scan_msg.angle_min = -1*pi/4;
+        scan_msg.angle_max = 1*pi/4;
+        scan_msg.angle_increment = 1*pi/8;
+        scan_msg.time_increment = 0;
+        scan_msg.range_min = 0.0;
+        scan_msg.range_max = 5.0;
+        scan_msg.ranges.assign(5, NAN);
+        //TODO: delete line below
+        //inverting the data order as the simulator used for training natively generates data in a counterclockwise fashion
+        /*
+        for(size_t i = 0; i < scan_msg.ranges.size(); i++){
+            if(distances.at(4-i)) > 5.0){
+                scan_msg.ranges[i] = distances.at(4-i);
+            }
+        }
+        */
+        double temp = 6.0;
+        //NE
+        temp = convert_NE(distances.at(4)) * 0.001;
+        if(temp < 5.0 && temp > 0.0){
+            scan_msg.ranges[4] = temp;
+        }
+        //NNE
+        temp = convert_NNE(distances.at(3)) * 0.001;
+        if(temp < 5.0 && temp > 0.0){
+            scan_msg.ranges[3] = temp;
+        }
+        //N
+        temp = convert_N(distances.at(2)) * 0.001;
+        if(temp < 5.0 && temp > 0.0){
+            scan_msg.ranges[2] = temp;
+        }
+        //NNW
+        temp = convert_NNW(distances.at(1)) * 0.001;
+        if(temp < 5.0 && temp > 0.0){
+            scan_msg.ranges[1] = temp;
+        }
+        //NW
+        temp = convert_NW(distances.at(0)) * 0.001;
+        if(temp < 5.0 && temp > 0.0){
+            scan_msg.ranges[0] = temp;
+        }
+
+        laser_scan_pub.publish(scan_msg);
+
+        /*
         std::cout << "Real distance at NW is " << convert_NW(distances.at(0)) << ", pixel is " << distances.at(0) << "\n";
         std::cout << "Real distance at NNW is " << convert_NNW(distances.at(1)) << ", pixel is " << distances.at(1) << "\n";
         std::cout << "Real distance at N is " << convert_N(distances.at(2)) << ", pixel is " << distances.at(2) << "\n";
@@ -192,6 +262,7 @@ int main(int argc, char** argv)
         std::cout << "Real distance at S is " << convert_S(distances.at(7)) << ", pixel is " << distances.at(7) << "\n";
         std::cout << "Real distance at SSE is " << convert_SSE(distances.at(8)) << ", pixel is " << distances.at(8) << "\n";
         std::cout << "Real distance at SE is " << convert_SE(distances.at(9)) << ", pixel is " << distances.at(9) << "\n";
+        */
         
         if(debug_mode){
             cv::waitKey(0);
