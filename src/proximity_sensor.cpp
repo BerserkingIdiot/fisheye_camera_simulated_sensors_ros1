@@ -80,7 +80,8 @@ int main(int argc, char** argv)
     ros::Publisher laser_scan_pub = n_public.advertise<sensor_msgs::LaserScan>("/static_laser", 1);
 
     image_transport::ImageTransport it(n_public);
-    image_transport::Publisher pub_img = it.advertise("camera", 1);
+    image_transport::Publisher pub_img = it.advertise("/camera/image", 1);
+    sensor_msgs::ImagePtr img_msg;
 
     // Create a VideoCapture object and open the input file
     // If the input is the web camera, pass 0 instead of the video file name
@@ -103,13 +104,17 @@ int main(int argc, char** argv)
         if (frame.empty()) break;
 
         if(publish_raw_image){
-            sensor_msgs::Image img_msg;
-            std_msgs::Header header;
-            header.stamp = ros::Time::now();
-            cv_bridge::CvImage img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::BGR8, frame);
-            img_bridge.toImageMsg(img_msg);
+            //sensor_msgs::Image img_msg;
+            //std_msgs::Header header;
+            //header.stamp = ros::Time::now();
+            //cv_bridge::CvImage img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::BGR8, frame);
+            //img_bridge.toImageMsg(img_msg);
+
+            img_msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", frame).toImageMsg();
 
             pub_img.publish(img_msg);
+            cv::waitKey(1);
+
         }
 
         // Display the resulting frame
@@ -211,7 +216,7 @@ int main(int argc, char** argv)
         scan_msg.angle_increment = 1*pi/8;
         scan_msg.time_increment = 0;
         scan_msg.range_min = 0.0;
-        scan_msg.range_max = 5.0;
+        scan_msg.range_max = 2.0;
         scan_msg.ranges.assign(5, NAN);
         //TODO: delete line below
         //inverting the data order as the simulator used for training natively generates data in a counterclockwise fashion
@@ -225,28 +230,28 @@ int main(int argc, char** argv)
         double temp = 6.0;
         //NE
         temp = convert_NE(distances.at(4)) * 0.001;
-        if(temp < 5.0 && temp > 0.0){
-            scan_msg.ranges[4] = temp;
+        if(temp < 2.0 && temp > 0.0){
+            scan_msg.ranges[0] = temp;
         }
         //NNE
         temp = convert_NNE(distances.at(3)) * 0.001;
-        if(temp < 5.0 && temp > 0.0){
-            scan_msg.ranges[3] = temp;
+        if(temp < 2.0 && temp > 0.0){
+            scan_msg.ranges[1] = temp;
         }
         //N
         temp = convert_N(distances.at(2)) * 0.001;
-        if(temp < 5.0 && temp > 0.0){
+        if(temp < 2.0 && temp > 0.0){
             scan_msg.ranges[2] = temp;
         }
         //NNW
         temp = convert_NNW(distances.at(1)) * 0.001;
-        if(temp < 5.0 && temp > 0.0){
-            scan_msg.ranges[1] = temp;
+        if(temp < 2.0 && temp > 0.0){
+            scan_msg.ranges[3] = temp;
         }
         //NW
         temp = convert_NW(distances.at(0)) * 0.001;
-        if(temp < 5.0 && temp > 0.0){
-            scan_msg.ranges[0] = temp;
+        if(temp < 2.0 && temp > 0.0){
+            scan_msg.ranges[4] = temp;
         }
 
         laser_scan_pub.publish(scan_msg);

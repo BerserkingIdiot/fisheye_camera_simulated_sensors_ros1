@@ -2,9 +2,11 @@
 <launch>
 
     <arg name="debug" default="false"/>
+    <arg name="publish_raw_image" default="false"/>
 
     <node name="proximity_sensor" type="proximity_sensor" pkg="fisheye_camera_simulated_sensors_ros1" output="screen">
         <param name="debug" value="$(arg debug)"/>
+        <param name="publish_raw_image" value="$(arg publish_raw_image)"/>
         <remap from="/static_laser" to="/sim1/static_laser"/>
     </node>
 
